@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yoblog.mapper.AdminMapper">
+    <resultMap id="adminMapper" type="Admin">
+        <id column="id" property="id"/>
+        <result column="account" property="account"/>
+        <result column="name" property="name"/>
+        <result column="pwd" property="pwd"/>
+        <result column="avatar_url" property="avatarUrl"/>
+        <result column="creat_time" property="creatTime"/>
+        <result column="modify_time" property="modifyTime"/>
+        <collection property="roles" ofType="Role">
+            <id property="id" column="rid"/>
+            <result property="name" column="rname"/>
+            <result property="creatTime" column="r_creat_time"/>
+            <result property="modifyTime" column="r_modify_time"/>
+            <collection property="permissions" ofType="Permission">
+                <id property="id" column="pid"/>
+                <result property="name" column="pname"/>
+                <result property="creatTime" column="p_creat_time"/>
+                <result property="modifyTime" column="p_modify_time"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="getAll" resultMap="adminMapper">
+        SELECT
+        admin.*,sys_role.id 'rid',sys_role.`name` 'rname',sys_role.creat_time 'r_creat_time',sys_role.modify_time 'r_modify_time' ,
+        sys_permission.id 'pid',sys_permission.`name` 'pname',sys_permission.creat_time 'p_creat_time',sys_permission.modify_time 'p_modify_time'
+        FROM
+        admin,sys_role,admin_role_relation ,sys_permission,role_permission_relation
+        WHERE
+        admin.id=admin_role_relation.admin_id
+        AND
+        sys_role.id=admin_role_relation.role_id
+        AND
+        sys_role.id=role_permission_relation.role_id
+        AND
+        sys_permission.id=role_permission_relation.permission_id
+    </select>
+
+    <select id="byAccount" resultMap="adminMapper" parameterType="String">
+        SELECT
+        admin.*,sys_role.id 'rid',sys_role.`name` 'rname',sys_role.creat_time 'r_creat_time',sys_role.modify_time 'r_modify_time' ,
+        sys_permission.id 'pid',sys_permission.`name` 'pname',sys_permission.creat_time 'p_creat_time',sys_permission.modify_time 'p_modify_time'
+        FROM
+        admin,sys_role,admin_role_relation ,sys_permission,role_permission_relation
+        WHERE
+        admin.account=#{account}
+        AND
+        admin.id=admin_role_relation.admin_id
+        AND
+        sys_role.id=admin_role_relation.role_id
+        AND
+        sys_role.id=role_permission_relation.role_id
+        AND
+        sys_permission.id=role_permission_relation.permission_id
+    </select>
+</mapper>
